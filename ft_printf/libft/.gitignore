@@ -1,0 +1,43 @@
+# ==============================================================================
+# Libft Project .gitignore
+# ==============================================================================
+
+# 1. Compiled Files
+# ------------------------------------------------------------------------------
+*.o
+*.a
+*.so
+*.out
+*.dSYM/
+
+# 2. Executables & Libraries
+# ------------------------------------------------------------------------------
+libft.a
+libft.so
+a.out
+
+# 3. Tester Files & Logs
+# ------------------------------------------------------------------------------
+# Exclude results from popular 42 testers (libftTester, libft-unit-test, etc.)
+libftTester/test
+libftTester/log
+libftTester/leak_test
+libft-unit-test/obj/
+libft-unit-test/result.log
+tests/*.out
+*.log
+
+# 4. Temporary & Backup Files
+# ------------------------------------------------------------------------------
+*.txt
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 5. Archive Files
+# ------------------------------------------------------------------------------
+*.7z
+*.zip
+*.tar
+*.gz

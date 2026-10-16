@@ -1,52 +1,97 @@
 #include "ft_printf.h"
 
+int ft_putchar_fd(char c, int fd) { return (write(fd, &c, 1)); }
+
+int ft_putstr_fd(char *s, int fd) {
+  int a = 0;
+  if (!s) {
+    ft_putstr_fd("(null)", 1);
+    return 6;
+  }
+  while (*s) {
+    write(fd, s, 1);
+    s++;
+    a++;
+  }
+  return a;
+}
+
+int ft_putnbr_in_base_fd(unsigned long n, int fd, int base, char *str) {
+  long nbr;
+  int count = 0;
+  nbr = n;
+  if (nbr < 0) {
+    count++;
+    ft_putchar_fd('-', fd);
+    nbr = -nbr;
+  }
+  if (nbr > base - 1)
+    ft_putnbr_in_base_fd((long)(nbr / base), fd, base, str);
+
+  ft_putchar_fd(*(str + (nbr % base)), fd);
+  count++;
+}
+
+int ft_print_pointer(void *pointer, char *str) {
+  int count = 0;
+  if (!pointer) {
+    ft_putstr_fd("(nil)", 1);
+    return 5;
+  }
+  ft_putstr_fd("0x", 1);
+  count += 2;
+  count += ft_putnbr_in_base_fd((uintptr_t)pointer, 1, 16, str);
+  return count;
+}
+
 int ft_printf(const char *format, ...) {
 
   va_list ap;
   va_start(ap, format);
+  int size = 0;
+  int count = 0;
   while (*format) {
     if (*format == '%') {
       format++;
       switch (*format) {
-      case 'c': // it is a char so pass it as and int when need to use need to typecast back to char ??
-        ft_putchar(va_arg(ap, int), 1);
+      case 'c':
+        count += ft_putchar_fd(va_arg(ap, int), 1);
         break;
-      case '%': // it is a percentage so just print the char
-        ft_putchar('%', 1);
+      case 's': // print string
+        count += ft_putstr_fd(va_arg(ap, char *), 1);
         break;
-      case 'd':// it is a signed decimal integer
-      case 'i':// same with d is a signed decimal integer
-        ft_putchar(va_arg(ap, int), 1);
+      case 'p': // print pointer  pointer address
+        count += ft_print_pointer(va_arg(ap, void *), "0123456789abcdef");
         break;
-      case 'u': // it is an unsigned decimal integer
-        ft_putchar(va_arg(ap, int), 1);
+      case 'd': // print numbers just use putnbr base 10
+      case 'i': // print numbers just use putnbr base 10
+        count += ft_putnbr_in_base_fd(va_arg(ap, int), 1, 10, "0123456789");
         break;
-      case 'x': // it is an unsigned hexadecimal integer (lower case) so print 0x and the address is 16 based integer
-        ft_putchar(va_arg(ap, int), 1);
+      case 'u': // unsigned decimal integer //unsigned integer
+        count +=
+            ft_putnbr_in_base_fd(va_arg(ap, unsigned int), 1, 10, "0123456789");
         break;
-      case 'X': // it is an unsigned hexadecimal integer (upper case) so print 0X and the address is 16 based integer
-        ft_putchar(va_arg(ap, int), 1);
+      case 'x':
+        count += ft_putnbr_in_base_fd(va_arg(ap, unsigned int), 1, 16,
+                                      "0123456789abcdef");
         break;
-      case 'o': // it is an unsigned octal integer
-        ft_putchar(va_arg(ap, int), 1);
+      case 'X':
+        count += ft_putnbr_in_base_fd(va_arg(ap, unsigned int), 1, 16,
+                                      "0123456789ABCDEF");
         break;
-        
-      case 'p': // it is an unsigned pointer (lower case) so print 0p and the address is 16 based integer in lower case
-        ft_putchar(va_arg(ap, int), 1);
+      case '%':
+        count += ft_putchar_fd('%', 1);
         break;
-      case 's': // it is a string so pass it as and int when need to use need to typecast back to char ??
-        ft_putchar(va_arg(ap, int), 1);
-        break;
-      default: // it is an undefined format so just print the format
-        ft_putchar('%', 1);
-        ft_putchar(*format, 1);
+      default:
+        count += ft_putchar_fd('%', 1);
+        count += ft_putchar_fd(*format, 1);
         break;
       }
     } else {
-      ft_putchar(*format, 1);
+      count += ft_putchar_fd(*format, 1);
     }
     format++;
   }
   va_end(ap);
-  return 0;
+  return count;
 }
