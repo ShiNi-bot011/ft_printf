@@ -1,11 +1,11 @@
 #include "ft_printf.h"
 
-int ft_putchar_fd(char c, int fd) { return (write(fd, &c, 1)); }
+int ft_putchar_fd_len(char c, int fd) { return (write(fd, &c, 1)); }
 
-int ft_putstr_fd(char *s, int fd) {
+int ft_putstr_fd_len(char *s, int fd) {
   int a = 0;
   if (!s) {
-    ft_putstr_fd("(null)", 1);
+    ft_putstr_fd_len("(null)", 1);
     return 6;
   }
   while (*s) {
@@ -22,23 +22,24 @@ int ft_putnbr_in_base_fd(unsigned long n, int fd, int base, char *str) {
   nbr = n;
   if (nbr < 0) {
     count++;
-    ft_putchar_fd('-', fd);
+    ft_putchar_fd_len('-', fd);
     nbr = -nbr;
   }
   if (nbr > base - 1)
     ft_putnbr_in_base_fd((long)(nbr / base), fd, base, str);
 
-  ft_putchar_fd(*(str + (nbr % base)), fd);
+  ft_putchar_fd_len(*(str + (nbr % base)), fd);
   count++;
+  return count;
 }
 
 int ft_print_pointer(void *pointer, char *str) {
   int count = 0;
   if (!pointer) {
-    ft_putstr_fd("(nil)", 1);
+    ft_putstr_fd_len("(nil)", 1);
     return 5;
   }
-  ft_putstr_fd("0x", 1);
+  ft_putstr_fd_len("0x", 1);
   count += 2;
   count += ft_putnbr_in_base_fd((uintptr_t)pointer, 1, 16, str);
   return count;
@@ -48,17 +49,16 @@ int ft_printf(const char *format, ...) {
 
   va_list ap;
   va_start(ap, format);
-  int size = 0;
   int count = 0;
   while (*format) {
     if (*format == '%') {
       format++;
       switch (*format) {
       case 'c':
-        count += ft_putchar_fd(va_arg(ap, int), 1);
+        count += ft_putchar_fd_len(va_arg(ap, int), 1);
         break;
       case 's': // print string
-        count += ft_putstr_fd(va_arg(ap, char *), 1);
+        count += ft_putstr_fd_len(va_arg(ap, char *), 1);
         break;
       case 'p': // print pointer  pointer address
         count += ft_print_pointer(va_arg(ap, void *), "0123456789abcdef");
@@ -80,15 +80,15 @@ int ft_printf(const char *format, ...) {
                                       "0123456789ABCDEF");
         break;
       case '%':
-        count += ft_putchar_fd('%', 1);
+        count += ft_putchar_fd_len('%', 1);
         break;
       default:
-        count += ft_putchar_fd('%', 1);
-        count += ft_putchar_fd(*format, 1);
+        count += ft_putchar_fd_len('%', 1);
+        count += ft_putchar_fd_len(*format, 1);
         break;
       }
     } else {
-      count += ft_putchar_fd(*format, 1);
+      count += ft_putchar_fd_len(*format, 1);
     }
     format++;
   }
