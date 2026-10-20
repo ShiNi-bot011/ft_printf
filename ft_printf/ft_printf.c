@@ -25,11 +25,12 @@ int ft_putnbr_in_base_fd(unsigned long n, int fd, int base, char *str) {
     ft_putchar_fd_len('-', fd);
     nbr = -nbr;
   }
-  if (nbr > base - 1)
-    ft_putnbr_in_base_fd((long)(nbr / base), fd, base, str);
+  if (nbr > base - 1){
+    count = ft_putnbr_in_base_fd((long)(nbr / base), fd, base, str);
+    }
 
-  ft_putchar_fd_len(*(str + (nbr % base)), fd);
   count++;
+  ft_putchar_fd_len(*(str + (nbr % base)), fd);
   return count;
 }
 

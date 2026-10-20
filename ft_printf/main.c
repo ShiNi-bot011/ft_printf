@@ -2,90 +2,76 @@
 #include <stdio.h>
 #include <limits.h>
 
+#define DIFF(format, ...) \
+    { \
+        int r1, r2; \
+        printf("\033[33mTesting: [%s]\033[0m\n", #format); \
+        printf(" Real: ["); \
+        fflush(stdout); /* Clear the pipe for the real one */ \
+        r1 = printf(format, ##__VA_ARGS__); \
+        fflush(stdout); \
+        printf("] | Return: %d\n", r1); \
+        \
+        printf(" Mine: ["); \
+        fflush(stdout); /* Clear the pipe for your code */ \
+        r2 = ft_printf(format, ##__VA_ARGS__); \
+        fflush(stdout); \
+        printf("] | Return: %d\n", r2); \
+        if (r1 != r2) \
+            printf("\033[31mFAIL: Return values differ!\033[0m\n"); \
+        printf("--------------------------------------\n"); \
+    }
+
 int main(void)
 {
-	int sample = 42;
+    int a = 42;
+    int b = -42;
 
-	// 1. Character (%c)
-	printf("std: [%c]\n", 'A');
-	ft_printf("ft : [%c]\n\n", 'A');
+    printf("\n\033[35m===== %% SCREWERY =====\033[0m\n");
+    DIFF("%%\n");
+    DIFF("%%%%%%\n");
+    DIFF("%%a%%a%%\n");
+    DIFF("%%%%%%%%\n");
+    printf("NOTE: The following is Undefined Behavior\n");
+    DIFF("%"); // Lonely percent
+    DIFF("%%%%%%%\n");
 
-	printf("std: [%c]\n", '\0');
-	ft_printf("ft : [%c]\n\n", '\0');
+    printf("\n\033[35m===== %%c STUFF =====\033[0m\n");
+    DIFF("%c", 'h');
+    DIFF("%c", 0x220);
+    DIFF("%c", -1);
+    DIFF("%c%c\n", '\0', '~');
 
-	// 2. String (%s)
-	printf("std: [%s]\n", "Hello, 42!");
-	ft_printf("ft : [%s]\n\n", "Hello, 42!");
+    printf("\n\033[35m===== STRINGS (%%s) =====\033[0m\n");
+    DIFF("hello, %s\n", "world");
+    DIFF("%s%s\n", "sdfd\0fs", "asdfasdf");
+    DIFF("NULL string: %s\n", (char *)0);
 
-	printf("std: [%s]\n", "");
-	ft_printf("ft : [%s]\n\n", "");
+    printf("\n\033[35m===== POINTERS (%%p) =====\033[0m\n");
+    DIFF("Pointer: %p\n", &a);
+    DIFF("NULL Pointer: %p\n", (void *)0);
+    DIFF("Max Pointer: %p\n", (void *)-1);
 
-	printf("std: [%s]\n", (char *)NULL);
-	ft_printf("ft : [%s]\n\n", (char *)NULL);
+    printf("\n\033[35m===== HEXADECIMAL (%%x %%X) =====\033[0m\n");
+    DIFF("%x", -1);
+    DIFF("%x", 0);
+    DIFF("%x", 0xfa1afe);
+    DIFF("%X", 0xbafefe);
 
-	// 3. Pointer (%p)
-	printf("std: [%p]\n", &sample);
-	ft_printf("ft : [%p]\n\n", &sample);
+    printf("\n\033[35m===== INTEGERS (%%d %%i) =====\033[0m\n");
+    DIFF("%d", 0);
+    DIFF("%d", INT_MAX);
+    DIFF("%d", INT_MIN);
+    DIFF("%i", -1);
+    DIFF("%i", 3450);
 
-	printf("std: [%p]\n", NULL);
-	ft_printf("ft : [%p]\n\n", NULL);
+    printf("\n\033[35m===== UNSIGNED (%%u) =====\033[0m\n");
+    DIFF("%u", -1);
+    DIFF("%u", 0);
+    DIFF("%u", UINT_MAX);
 
-	// 4. Decimal / Integer (%d, %i)
-	printf("std: [%d]\n", 42);
-	ft_printf("ft : [%d]\n\n", 42);
+    printf("\n\033[35m===== MIXED STUFF =====\033[0m\n");
+    DIFF("asdf %% %p %d %i %c\n", &a, 345, 0, 'X');
 
-	printf("std: [%d]\n", -42);
-	ft_printf("ft : [%d]\n\n", -42);
-
-	printf("std: [%i]\n", 0);
-	ft_printf("ft : [%i]\n\n", 0);
-
-	printf("std: [%d]\n", INT_MAX);
-	ft_printf("ft : [%d]\n\n", INT_MAX);
-
-	printf("std: [%i]\n", INT_MIN);
-	ft_printf("ft : [%i]\n\n", INT_MIN);
-
-	// 5. Unsigned Integer (%u)
-	printf("std: [%u]\n", 123456);
-	ft_printf("ft : [%u]\n\n", 123456);
-
-	printf("std: [%u]\n", 0);
-	ft_printf("ft : [%u]\n\n", 0);
-
-	printf("std: [%u]\n", UINT_MAX);
-	ft_printf("ft : [%u]\n\n", UINT_MAX);
-
-	// 6. Hexadecimal Lowercase (%x)
-	printf("std: [%x]\n", 255);
-	ft_printf("ft : [%x]\n\n", 255);
-
-	printf("std: [%x]\n", 3735928559U);
-	ft_printf("ft : [%x]\n\n", 3735928559U);
-
-	printf("std: [%x]\n", 0);
-	ft_printf("ft : [%x]\n\n", 0);
-
-	// 7. Hexadecimal Uppercase (%X)
-	printf("std: [%X]\n", 255);
-	ft_printf("ft : [%X]\n\n", 255);
-
-	printf("std: [%X]\n", 3735928559U);
-	ft_printf("ft : [%X]\n\n", 3735928559U);
-
-	printf("std: [%X]\n", 0);
-	ft_printf("ft : [%X]\n\n", 0);
-
-	// 8. Percent Sign (%%)
-	printf("std: [%%]\n");
-	ft_printf("ft : [%%]\n\n");
-
-	printf("std: [%%%%%%]\n");
-	ft_printf("ft : [%%%%%%]\n\n");
-
-	// 9. Mixed Formats
-	printf("std: [Char: %c, String: %s, Dec: %d, Hex: %x, Percent: %%]\n", 'Z', "42", 100, 255);
-	ft_printf("ft : [Char: %c, String: %s, Dec: %d, Hex: %x, Percent: %%]\n\n", 'Z', "42", 100, 255);
-
-	return (0);
+    return (0);
 }

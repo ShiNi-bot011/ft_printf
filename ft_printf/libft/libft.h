@@ -72,10 +72,8 @@ void ft_lstiter(t_list *lst, void (*f)(void *));
 t_list *ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *));
 
 /* ft_printf functions */
-int ft_printf(const char *format, ...);
 int ft_putchar_fd_len(char c, int fd);
 int ft_putstr_fd_len(char *s, int fd);
 int ft_putnbr_in_base_fd(unsigned long n, int fd, int base, char *str);
-int ft_print_pointer(void *pointer, char *str);
 
 #endif
